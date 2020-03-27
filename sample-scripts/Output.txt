@@ -1,0 +1,279 @@
+Windows PowerShell
+Copyright (C) 2016 Microsoft Corporation. Tous droits réservés.
+
+PS C:\Windows\system32> cd \
+PS C:\> ls
+
+
+    Répertoire : C:\
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----       25/02/2020     08:34                Backup
+d-----       29/01/2020     16:24                IBM_Support
+d-----       29/01/2020     16:23                Intel
+d-----       29/01/2020     09:17                Lenovo_Support
+d-----       12/09/2016     13:45                Logs
+d-----       16/07/2016     15:23                PerfLogs
+d-r---       24/03/2020     10:58                Program Files
+d-----       21/02/2020     10:14                Program Files (x86)
+d-r---       24/03/2020     10:57                Users
+d-----       29/01/2020     15:00                VBRCatalog
+d-----       24/02/2020     16:30                Windows
+-a----       29/01/2020     14:50           1024 .rnd
+-a----       04/03/2020     13:39           2788 GlobalSettings.ps1
+-a----       06/03/2020     09:53           3454 SVG_SVR-AD-1.xml
+-a----       19/02/2020     15:24           3590 SVG_SVR-AV.xml
+-a----       26/02/2020     09:43           1005 VeeamZIP_SVR-AD-1.ps1
+-a----       26/02/2020     09:51           1003 VeeamZIP_SVR-AV.ps1
+-a----       26/02/2020     09:59            993 VeeamZIP_TEMPLATE.ps1
+-a----       04/03/2020     13:42            974 VeeamZIP_VCenter.ps1
+-a----       26/02/2020     09:53           1006 VeeamZIP_VM_SYSLOG.ps1
+
+
+PS C:\> .\VeeamZIP_SVR-AD-1.ps1
+PS C:\> $Server
+PS C:\> $HostName = "192.168.15.10"
+PS C:\>
+PS C:\> # Directory that VM backups should go to (Mandatory; for instance, C:\Backup)
+PS C:\> $Directory = "D:\Backup"
+PS C:\>
+PS C:\> # Desired compression level (Optional; Possible values: 0 - None, 4 - Dedupe-friendly, 5 - Optimal, 6 - High, 9
+- Extreme)
+PS C:\> $CompressionLevel = "9"
+PS C:\>
+PS C:\> # Quiesce VM when taking snapshot (Optional; VMware Tools are required; Possible values: $True/$False)
+PS C:\> $EnableQuiescence = $True
+PS C:\>
+PS C:\> # Protect resulting backup with encryption key (Optional; $True/$False)
+PS C:\> $EnableEncryption = $False
+PS C:\>
+PS C:\> # Encryption Key (Optional; path to a secure string)
+PS C:\> $EncryptionKey = ""
+PS C:\>
+PS C:\> # Names of VMs to backup separated by semicolon (Mandatory)
+PS C:\> $VMNames = "SVR-AD-1"
+PS C:\>
+PS C:\> # Retention settings (Optional; By default, VeeamZIP files are not removed and kept in the specified location fo
+r an indefinite period of time.
+PS C:\> # Possible values: Never , Tonight, TomorrowNight, In3days, In1Week, In2Weeks, In1Month)
+PS C:\> $Retention = "In1Month"
+PS C:\>
+PS C:\> ##################################################################
+PS C:\> #                   Notification Settings
+PS C:\> ##################################################################
+PS C:\>
+PS C:\> # Enable notification (Optional)
+PS C:\> $EnableNotification = $False
+PS C:\>
+PS C:\> Asnp VeeamPSSnapin
+PS C:\>
+PS C:\> $Server = Get-VBRServer -name $HostName
+PS C:\> $Server
+
+
+Info               : 192.168.15.10 (VMware vCenter Server)
+ParentId           : 00000000-0000-0000-0000-000000000000
+Id                 : f8c6c6f6-af6b-4766-a3c9-e2dc926a9ba9
+Name               : 192.168.15.10
+Reference          :
+Description        : Created by CSIO\adm_v.boucard at 21/02/2020 11:09.
+IsUnavailable      : False
+Type               : VC
+ApiVersion         : V67
+PhysHostId         : 983e3c39-7e48-4630-8a24-ba9a8a13be9e
+ProxyServicesCreds :
+
+
+
+PS C:\> $VM = Find-VBRViEntity -Name $VMNames -Server $Server
+PS C:\> $VM
+
+
+ConnHostId             : f8c6c6f6-af6b-4766-a3c9-e2dc926a9ba9
+Type                   : Vm
+Reference              : vm-137
+Id                     : f8c6c6f6-af6b-4766-a3c9-e2dc926a9ba9_vm-137
+Name                   : SVR-AD-1
+Path                   : 192.168.15.10\SHIVA-CD2\CLUSTER\SVR-AD-1
+VmHostName             : 192.168.14.10
+VmFolderName           : Discovered virtual machine
+IsLegacyFaultTolerance : False
+FaultToleranceType     : None
+GuestInfo              : Veeam.Backup.Model.CGuestInfo
+Uuid                   : 4235e315-8060-4a0a-8540-f6bb3ce6aec3
+PowerState             : PoweredOn
+IsTemplate             : False
+ProvisionedSize        : 94613444623
+UsedSize               : 54371193908
+Platform               : EVmware
+
+
+
+PS C:\>     $ZIPSession = Start-VBRZip -Entity $VM -Folder $Directory -Compression $CompressionLevel -DisableQuiesce:(!$
+EnableQuiescence) -AutoDelete $Retention
+PS C:\>     $TaskSessions = $ZIPSession.GetTaskSessions().logger.getlog().updatedrecords
+
+PS C:\> $TaskSessions
+
+
+Visibility    : VisibleToAll
+Status        : ESucceeded
+OrdinalId     : 20
+UpdateUsn     : 0
+Title         : Processing finished at 26/03/2020 09:39:05
+Description   :
+UpdateTime    : 26/03/2020 09:39:05
+Style         : ENone
+Object        :
+StartTime     : 26/03/2020 09:39:05
+Cookie        :
+VisibilityInt : 0
+
+(...)
+
+Visibility    : VisibleToAll
+Status        : ESucceeded
+OrdinalId     : 1
+UpdateUsn     : 0
+Title         : Queued for processing at 26/03/2020 09:24:16
+Description   :
+UpdateTime    : 26/03/2020 09:24:16
+Style         : ENone
+Object        :
+StartTime     : 26/03/2020 09:24:16
+Cookie        :
+VisibilityInt : 0
+
+PS C:\> $MesssagyBody = @()
+PS C:\>     $MesssagyBody = $MesssagyBody + ($ZIPSession | Select-Object @{n="Name";e={($_.name).Substring(0, $_.name.LastIndexOf("("))}} ,@{n="Start Time";e={$_.CreationTime}},@{n="End Time";e={$_.EndTime}},Result,@{n="Details";e={($TaskSessions | sort creationtime -Des
+cending | select -first 1).Title}})
+PS C:\> $MesssagyBody
+
+
+Name       : SVR-AD-1_2020-03-26T092408
+Start Time : 26/03/2020 09:24:08
+End Time   : 26/03/2020 09:39:10
+Result     : Success
+Details    : Creating VM snapshot
+
+
+
+PS C:\> $TaskSessions | sort creationtime -Descending | select -first 1
+
+
+Visibility    : VisibleToAll
+Status        : ESucceeded
+OrdinalId     : 7
+UpdateUsn     : 2
+Title         : Creating VM snapshot
+Description   :
+UpdateTime    : 26/03/2020 09:24:53
+Style         : ENone
+Object        :
+StartTime     : 26/03/2020 09:24:30
+Cookie        :
+VisibilityInt : 0
+
+
+PS C:\> $TaskSessions | sort UpdateTime -Descending | select -first 1
+
+
+Visibility    : VisibleToAll
+Status        : ESucceeded
+OrdinalId     : 20
+UpdateUsn     : 0
+Title         : Processing finished at 26/03/2020 09:39:05
+Description   :
+UpdateTime    : 26/03/2020 09:39:05
+Style         : ENone
+Object        :
+StartTime     : 26/03/2020 09:39:05
+Cookie        :
+VisibilityInt : 0
+
+PS C:\> $ZIPSession
+
+
+EventNotifier                : Veeam.Backup.Core.CEventNotifier
+BottleneckManager            : CJobBottleneckManager
+Info                         : Veeam.Backup.Model.CBackupSessionInfo
+Progress                     : Veeam.Backup.Model.CBackupProgressData
+StartupMode                  : Normal
+JobSourceType                : VDDK
+CurrentPointId               : 00000000-0000-0000-0000-000000000000
+OriginalSessionId            : 28ebfa8c-0eb5-4a22-9e7b-3ea9113b0816
+ParentSessionId              : 00000000-0000-0000-0000-000000000000
+IsFullMode                   : True
+IsRetryMode                  : False
+IsRecheckRetry               : False
+IsQuickBackup                : False
+IsVeeamZip                   : True
+IsPlannedFailover            : False
+IsReplicaFromBackup          : False
+IsEpAgentManagement          : False
+PostActivity                 : AskService
+Name                         : SVR-AD-1_2020-03-26T092408 (Active Full)
+OrigJobName                  : SVR-AD-1_2020-03-26T092408
+BackupStats                  : Veeam.Backup.Model.CBackupStats
+WorkDetails                  : Veeam.Backup.Core.CBackupSessionWorkDetails
+WillBeRetried                : False
+IsManuallyStopped            : False
+IsTransformLaunched          : False
+LastProgressSaveTime         : 01/01/0001 00:00:00
+SessionCryptoSpec            : Veeam.Backup.Crypto.CCryptoSymmetricSpec
+UserKey                      :
+MasterKey                    :
+UserCryptoSpec               :
+SelectiveProcessingSpec      :
+BackupVerificationResult     :
+IsEncryptionEnabledByOptions : False
+IsEncryptionEnabled          : False
+SplitStoragesPerVm           :
+DataBag                      : {}
+SessionInfo                  : Veeam.Backup.Model.CBackupSessionInfo
+Id                           : 28ebfa8c-0eb5-4a22-9e7b-3ea9113b0816
+LeaseId                      : 00000000-0000-0000-0000-000000000000
+JobType                      : Backup
+JobName                      : SVR-AD-1_2020-03-26T092408
+JobSpec                      : <FreeBackupSpec><JobId>4c97f209-2425-4696-b985-a7d310cf50e2</JobId><JobName>SVR-AD-1_2020-03-26T092408</JobName><VmName>SVR-AD-1</VmName><Platform PlatformId="00000000-0000-0000-0000-000000000000" Platform="0" /><BackupObjects><ObjectId>f7
+                               61c95a-e509-44d6-a657-789eef81f0df</ObjectId></BackupObjects><UseRepository>False</UseRepository><RepositoryId>00000000-0000-0000-0000-000000000000</RepositoryId><FolderName>D:\Backup</FolderName><CredsId>00000000-0000-0000-0000-0000000000
+                               00</CredsId><CompressionLevel>9</CompressionLevel><VmToolsQuiesce>True</VmToolsQuiesce><RetainDatetime>04/26/2020
+                               00:00:00</RetainDatetime><PwdKeyId>00000000-0000-0000-0000-000000000000</PwdKeyId><ModifiedBy>CSIO\adm_ad_v.boucard</ModifiedBy></FreeBackupSpec>
+JobTypeString                : Backup
+CreationTimeUTC              : 26/03/2020 09:24:08
+Operation                    :
+Description                  :
+BaseProgress                 : 100
+IsCompleted                  : True
+IsWorking                    : False
+IsStarting                   : False
+IsPostprocessing             : False
+JobId                        : 4c97f209-2425-4696-b985-a7d310cf50e2
+Result                       : Success
+State                        : Stopped
+EndTime                      : 26/03/2020 09:39:10
+EndTimeUTC                   : 26/03/2020 09:39:10
+CreationTime                 : 26/03/2020 09:24:08
+AuxData                      : <AuxData><CBackupStats><BackupSize>9794344448</BackupSize><DataSize>42949962299</DataSize><DedupRatio>42</DedupRatio><CompressRatio>53</CompressRatio></CBackupStats><CBackupSessionWorkDetails><WorkDuration>9014364855</WorkDuration></CBacku
+                               pSessionWorkDetails><SessionStarterInfo Version="1" UserName="adm_ad_v.boucard" UserDomainName="CSIO" RunManually="True" LoginType="0" LoginName="CSIO\adm_ad_v.boucard" /></AuxData>
+IsLowerAgentPriority         : True
+LogName                      : Job.SVR-AD-1_2020-03-26T092408
+LogsSubFolder                : SVR-AD-1_2020-03-26T092408
+Logger                       : Veeam.Backup.Core.XmlLogger
+Tracer                       : Veeam.Backup.Core.CSessionLogTracer
+
+
+PS C:\> $ZIPSession |select-object auxdata
+
+AuxData
+-------
+<AuxData><CBackupStats><BackupSize>9794344448</BackupSize><DataSize>42949962299</DataSize><DedupRatio>42</DedupRatio><CompressRatio>53</CompressRatio></CBackupStats><CBackupSessionWorkDetails><WorkDuration>9014364855</WorkDuration></CBackupSessionWorkDetails><Session...
+
+PS C:\> $size = $ZIPSession |select-object @{n="BackupSize";e={[regex]::match($_.auxdata,$pattern).groups[1].value}}
+PS C:\> $size
+
+BackupSize
+----------
+9794344448
