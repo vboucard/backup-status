@@ -17,3 +17,14 @@ Un calendrier serait présent sur ce site afin de sélectionner une date.
 ## Fichiers du projet
 
 _Diagramme1.dia_ pour le modèle physique de données
+
+## Programmes utilisés
+
+Windows 2012 R2
+
+Powershell 5.1 pour utiliser les modules SQL **voir lesquels** https://www.microsoft.com/en-us/download/details.aspx?id=54616
+
+Veeam Backup & Restore 9.5 Update 3a (1922) https://download2.veeam.com/VeeamBackup&Replication_9.5.0.1922.Update3a.iso
+
+Pour une infrastructure virtuelle avec vSphere 6.7 :
+Veeam Backup & Restore 9.5 Update 4n (2866) https://download2.veeam.com/VeeamBackup&Replication_9.5.4.2866.Update4b_.iso
